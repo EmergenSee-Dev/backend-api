@@ -13,8 +13,14 @@ const PORT = process.env.PORT || 3002;
 app.use(express.json()); // Parse JSON bodies
 
 // Import routes
-const userRouter = require("./src/routes/userRoute");
+const authRouter = require("./src/routes/authRouter");
+const userRouter = require("./src/routes/userRouter");
+const emergenseesRouter = require("./src/routes/emergenseesRouter");
+
+app.use("/auth", authRouter);
 app.use("/api", userRouter);
+app.use("/api/emergensee", emergenseesRouter);
+
 
 // Home route
 app.get("/", (req, res) => {
