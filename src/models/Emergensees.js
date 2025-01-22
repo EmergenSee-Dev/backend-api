@@ -19,7 +19,11 @@ const EmergenseesSchema = new mongoose.Schema({
   burn_type: { type: String, required: false },
   vehicle: { type: String, required: false },
   number_of_vehicles: { type: Number, required: false },
-  incident_type: { type: String, required: false }
+  incident_type: { type: String, required: false },
+  author: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  }
 });
 
 module.exports = mongoose.model("Emergensees", EmergenseesSchema);

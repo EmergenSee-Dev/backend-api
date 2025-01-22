@@ -9,21 +9,21 @@ const { sendSms } = require("../utils/sendOtp");
 const authControllers = {
 
   createVerification: async (req, res) => {
-    const { phone } = req.body;
+    const { phoneNumber } = req.body;
 
     try {
-      const existingUser = await User.findOne({ phone });
+      const existingUser = await User.findOne({ phoneNumber });
       if (existingUser) {
         return res.status(400).json({ message: "User already exists" });
       }
       const code = generateVerificationCode()
 
       const user = new VerifyUser({
-        phone,
+        phoneNumber,
         code
       })
-      
-      await sendSms({ phone, code })
+
+      await sendSms({ phoneNumber, code })
 
       const savedUser = await user.save();
       res.status(201).json({ message: "User created successfully", user: savedUser });
@@ -35,16 +35,16 @@ const authControllers = {
 
   verifyOtp: async (req, res) => {
     try {
-      const { phone, code } = req.body;
+      const { phoneNumber, code } = req.body;
 
       // Validate request body
-      if (!phone || !code) {
+      if (!phoneNumber || !code) {
         res.status(400).json({ success: false, message: "Phone Number and OTP are required." });
         return;
       }
 
       // Check if the OTP exists for the given email
-      const storedOtp = VerifyUser.findOne({ phone });
+      const storedOtp = VerifyUser.findOne({ phoneNumber });
       if (!storedOtp) {
         res.status(404).json({ success: false, message: "OTP not found for the given phone number." });
         return;
@@ -74,11 +74,11 @@ const authControllers = {
   },
 
   createUser: async (req, res) => {
-    const { name, phone, password } = req.body;
+    const { name, phoneNumber, password } = req.body;
 
     try {
       // Check if user already exists
-      const existingUser = await User.findOne({ phone });
+      const existingUser = await User.findOne({ phoneNumber });
       if (existingUser) {
         return res.status(400).json({ message: "User already exists" });
       }
@@ -90,7 +90,7 @@ const authControllers = {
       // Create new user
       const user = new User({
         name,
-        phone,
+        phoneNumber,
         password: hashedPassword,
       });
 
@@ -102,11 +102,11 @@ const authControllers = {
   },
 
   loginUser: async (req, res) => {
-    const { phone, password } = req.body;
+    const { phoneNumber, password } = req.body;
 
     try {
       // Check if user exists
-      const user = await User.findOne({ phone });
+      const user = await User.findOne({ phoneNumber });
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -119,7 +119,7 @@ const authControllers = {
 
       // Generate JWT token
       const token = jwt.sign(
-        { id: user._id, phone: user.phpne },
+        { id: user._id, phone: user.phoneNumber },
         process.env.JWT_SECRET,
         { expiresIn: "1h" }
       );
@@ -129,7 +129,6 @@ const authControllers = {
         token,
         user: {
           id: user._id,
-          email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
         },
@@ -137,7 +136,93 @@ const authControllers = {
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
-  }
+  },
+
+  forgotPassword: async (req, res) => {
+    try {
+      const { phoneNumber } = req.body;
+
+      if (!phoneNumber) {
+        res.status(400).json({ success: false, message: "Phone number is required." });
+        return;
+      }
+
+      // Find the user by phone number
+      const user = await User.findOne({ phoneNumber });
+      if (!user) {
+        res.status(404).json({ success: false, message: "User not found." });
+        return;
+      }
+
+      // Generate a random 6-digit OTP
+      const otp = generateVerificationCode()
+
+      // Save the OTP to the user's record with an expiration time (e.g., 10 minutes)
+      user.code = otp;
+      await user.save();
+
+      await sendSms({ phoneNumber, otp })
+      // Send the OTP via SMS using Termii
+
+
+      res.status(200).json({
+        success: true,
+        message: "OTP sent to your phone number.",
+      });
+    } catch (error) {
+      console.error("Error in forgotPassword:", error);
+      res.status(500).json({
+        success: false,
+        message: "An error occurred while processing your request.",
+      });
+    }
+  },
+
+  resetPassword: async (req, res) => {
+    try {
+      const { phoneNumber, newPassword } = req.body;
+
+      if (!phoneNumber || !newPassword) {
+        res.status(400).json({
+          success: false,
+          message: "Phone number, and new password are required.",
+        });
+        return;
+      }
+
+      // Find the user by phone number
+      const user = await User.findOne({ phoneNumber });
+      if (!user) {
+        res.status(404).json({ success: false, message: "User not found." });
+        return;
+      }
+
+      // Check if the OTP matches and is not expired
+      // if (user.otp !== otp || new Date() > user.otpExpires) {
+      //   res.status(400).json({ success: false, message: "Invalid or expired OTP." });
+      //   return;
+      // }
+
+      // Hash the new password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Update the user's password and clear the OTP
+      user.password = hashedPassword;
+      user.code = null;
+      await user.save();
+
+      res.status(200).json({
+        success: true,
+        message: "Password reset successfully.",
+      });
+    } catch (error) {
+      console.error("Error in resetPassword:", error);
+      res.status(500).json({
+        success: false,
+        message: "An error occurred while resetting your password.",
+      });
+    }
+  },
 }
 
 module.exports = authControllers
