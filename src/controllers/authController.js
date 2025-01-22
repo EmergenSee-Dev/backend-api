@@ -2,8 +2,8 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const VerifyUser = require("../models/VerifyUser");
-const { generateVerificationCode } = require("../utils/generateVerificationCode");
-const { sendSms } = require("../utils/sendOtp");
+const generateVerificationCode = require("../utils/generateVerificationCode");
+const sendSms = require("../utils/sendOtp");
 
 // Create a new user
 const authControllers = {
