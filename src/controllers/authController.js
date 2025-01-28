@@ -2,8 +2,8 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const VerifyUser = require("../models/VerifyUser");
-const generateVerificationCode = require("../utils/generateVerificationCode");
-const sendSms = require("../utils/sendOtp");
+const { generateVerificationCode } = require("../utils/generateVerificationCode");
+const { sendSms } = require("../utils/sendOtp");
 
 // Create a new user
 const authControllers = {
@@ -19,7 +19,7 @@ const authControllers = {
       const code = generateVerificationCode()
 
       const user = new VerifyUser({
-        phoneNumber,
+        phone: phoneNumber,
         code
       })
 
@@ -29,7 +29,7 @@ const authControllers = {
       res.status(201).json({ message: "User created successfully", user: savedUser });
 
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ message: error });
     }
   },
 
@@ -44,7 +44,8 @@ const authControllers = {
       }
 
       // Check if the OTP exists for the given email
-      const storedOtp = VerifyUser.findOne({ phoneNumber });
+      const storedOtp = await VerifyUser.findOne({ phone: phoneNumber });
+      console.log(storedOtp.code)
       if (!storedOtp) {
         res.status(404).json({ success: false, message: "OTP not found for the given phone number." });
         return;
@@ -66,7 +67,7 @@ const authControllers = {
       res.status(200).json({ success: true, message: "OTP verified successfully." });
 
       // Optionally, remove the OTP after verification
-      otpStore.delete(email);
+      // otpStore.delete(email);
     } catch (error) {
       console.error("Error verifying OTP:", error);
       res.status(500).json({ success: false, message: "An error occurred while verifying the OTP." });
