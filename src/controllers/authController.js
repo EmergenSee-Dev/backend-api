@@ -130,8 +130,8 @@ const authControllers = {
         token,
         user: {
           id: user._id,
-          firstName: user.firstName,
-          lastName: user.lastName,
+          name: user.name,
+          phone: user.phoneNumber,
         },
       });
     } catch (error) {
@@ -164,7 +164,6 @@ const authControllers = {
 
       await sendSms({ phoneNumber, otp })
       // Send the OTP via SMS using Termii
-
 
       res.status(200).json({
         success: true,

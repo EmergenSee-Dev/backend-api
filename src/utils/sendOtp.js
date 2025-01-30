@@ -20,7 +20,7 @@ export const sendSms = async ({ to, code }) => {
 
     const response = await axios.post(apiUrl, requestBody, {
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
     });
 
