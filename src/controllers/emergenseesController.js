@@ -3,22 +3,7 @@ const Emergensees = require("../models/Emergensees");
 const emergenseesController = {
   createNew: async (req, res) => {
     try {
-      const { author, name, number_of_injured, address, landmark, weather_condition, time_of_incident, type } = req.body;
-
-      // Validate required fields
-      if (!author || !name || !number_of_injured || !address || !landmark || !weather_condition || !time_of_incident || !type || !image) {
-        res.status(400).json({
-          success: false,
-          message: "All fields are required.",
-        });
-        return;
-      }
-
-      const cloudFile = await upload(req.body.image);
-
-      // Create a new history record
-      const newHistory = new History({
-        image: cloudFile.secure_url,
+      const {
         author,
         name,
         number_of_injured,
@@ -26,46 +11,67 @@ const emergenseesController = {
         landmark,
         weather_condition,
         time_of_incident,
-        type
+        type,
+        image, // FIXED: Include image in destructuring
+      } = req.body;
+
+      // Convert number_of_injured to a number
+      const numInjured = Number(number_of_injured);
+
+      // Validate required fields
+      if (!author || !name || isNaN(numInjured) || !address || !landmark || !weather_condition || !time_of_incident || !type || !image) {
+        return res.status(400).json({
+          success: false,
+          message: "All fields are required.",
+        });
+      }
+
+      // Upload image (if it's a file, check req.file instead)
+      const cloudFile = await upload(image);
+
+      // Create a new history record
+      const newHistory = new Emergensees({
+        image: cloudFile.secure_url,
+        author,
+        name,
+        number_of_injured: numInjured,
+        address,
+        landmark,
+        weather_condition,
+        time_of_incident,
+        type,
       });
 
-      // Save the record to the database
+      // Add additional fields based on type
+      switch (type) {
+        case "fall":
+          newHistory.height = req.body.height;
+          newHistory.from_unto = req.body.from_unto;
+          newHistory.surface = req.body.surface;
+          break;
+
+        case "assault":
+          newHistory.weapon = req.body.weapon;
+          newHistory.body_part_injured = req.body.body_part_injured;
+          break;
+
+        case "burn":
+          newHistory.burn_type = req.body.burn_type;
+          newHistory.body_part_injured = req.body.body_part_injured;
+          break;
+
+        case "motor-vehicle":
+          newHistory.vehicle = req.body.vehicle;
+          newHistory.number_of_vehicles = req.body.number_of_vehicles;
+          break;
+
+        case "other":
+          newHistory.incident_type = req.body.incident_type;
+          break;
+      }
+
+      // Save the record only once
       const savedHistory = await newHistory.save();
-
-      if (type === 'fall') {
-        savedHistory.height = req.body.height
-        savedHistory.from_unto = req.body.from_unto
-        savedHistory.surface = req.body.surface
-
-        await savedHistory.save()
-      }
-
-      if (type === 'assault') {
-        savedHistory.weapon = req.body.weapon
-        savedHistory.body_part_injured = req.body.body_part_injured
-
-        await savedHistory.save()
-      }
-
-      if (type === 'burn') {
-        savedHistory.burn_type = req.body.burn_type
-        savedHistory.body_part_injured = req.body.body_part_injured
-
-        await savedHistory.save()
-      }
-
-      if (type === 'other') {
-        savedHistory.incident_type = req.body.incident_type
-        await savedHistory.save()
-      }
-
-      if (type === 'motor-vehicle') {
-        savedHistory.vehicle = req.body.vehicle
-        savedHistory.number_of_vehicles = req.body.number_of_vehicles
-
-        await savedHistory.save()
-      }
-
 
       res.status(201).json({
         success: true,
@@ -73,13 +79,14 @@ const emergenseesController = {
         data: savedHistory,
       });
     } catch (error) {
-      console.error("Error creating history:", error);
+      console.error("Error creating Emergensees:", error);
       res.status(500).json({
         success: false,
-        message: "An error occurred while creating history.",
+        message: "An error occurred while creating Emergensees.",
       });
     }
   },
+
 
   getAll: async (req, res) => {
     try {
