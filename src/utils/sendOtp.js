@@ -4,6 +4,11 @@ export const sendSms = async ({ to, code }) => {
   try {
     const apiUrl = "https://v3.api.termii.com/api/sms/send"; // Termii API URL
     const apiKey = process.env.SMS_KEY
+
+    if (!apiKey) {
+      throw new Error("API key is missing. Check your .env file.");
+    }
+
     const requestBody = {
       to: to,
       sms: `Hello there, this is your OTP code from Emergensee ${code}`,

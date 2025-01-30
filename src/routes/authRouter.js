@@ -4,6 +4,7 @@ const authRouter = express.Router();
 
 authRouter.post("/create", authControllers.createUser);
 authRouter.post("/login", authControllers.loginUser);
+
 authRouter.put('/verify-code', authControllers.verifyOtp)
 authRouter.put('/start-verification', authControllers.createVerification)
 authRouter.put('/forgot-password', authControllers.forgotPassword)

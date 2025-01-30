@@ -24,7 +24,7 @@ app.use("/api/emergensee", emergenseesRouter);
 
 // Home route
 app.get("/", (req, res) => {
-  res.send("Welcome to the Express App!");
+  res.send("Welcome to the Emergensee App!");
 });
 
 // Start server
