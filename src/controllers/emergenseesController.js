@@ -1,4 +1,5 @@
 const Emergensees = require("../models/Emergensees");
+const { upload } = require("../utils/cloudinary");
 
 const emergenseesController = {
   createNew: async (req, res) => {
