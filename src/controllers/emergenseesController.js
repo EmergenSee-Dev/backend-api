@@ -1,5 +1,5 @@
 const Emergensees = require("../models/Emergensees");
-const { upload } = require("../utils/cloudinary");
+const { uploadToCloudinary } = require("../utils/cloudinary");
 
 const emergenseesController = {
   createNew: async (req, res) => {
@@ -13,22 +13,24 @@ const emergenseesController = {
         weather_condition,
         time_of_incident,
         type,
-        image, // FIXED: Include image in destructuring
       } = req.body;
+      const image = req.file;
 
       // Convert number_of_injured to a number
       const numInjured = Number(number_of_injured);
 
       // Validate required fields
-      if (!author || !name || isNaN(numInjured) || !address || !landmark || !weather_condition || !time_of_incident || !type || !image) {
+      if (!author || !name || !number_of_injured || !address || !landmark || !weather_condition || !time_of_incident || !type || !image) {
         return res.status(400).json({
           success: false,
           message: "All fields are required.",
         });
       }
 
-      // Upload image (if it's a file, check req.file instead)
-      const cloudFile = await upload(image);
+      // Upload image to Cloudinary
+      const cloudFile = await uploadToCloudinary(image);  // This will now work with buffers
+      console.log(cloudFile);  // Log the uploaded file details
+
 
       // Create a new history record
       const newHistory = new Emergensees({

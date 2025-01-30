@@ -10,6 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 3002;
 
 // Middleware
+app.use(express.urlencoded({ extended: true }));  // For form data
 app.use(express.json()); // Parse JSON bodies
 
 // Import routes
