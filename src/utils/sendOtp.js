@@ -8,7 +8,7 @@ export const sendSms = async ({ to, code }) => {
     if (!apiKey) {
       throw new Error("API key is missing. Check your .env file.");
     }
-
+    console.log(to)
     const requestBody = {
       to: to,
       sms: `Hello there, this is your OTP code from Emergensee ${code}`,

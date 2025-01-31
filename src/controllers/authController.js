@@ -23,7 +23,7 @@ const authControllers = {
         code
       })
 
-      await sendSms({ phoneNumber, code })
+      await sendSms({ to:phoneNumber, code })
 
       const savedUser = await user.save();
       res.status(201).json({ message: "User created successfully", user: savedUser });
@@ -44,15 +44,22 @@ const authControllers = {
       }
 
       // Check if the OTP exists for the given email
+      const user = await User.findOne({ phoneNumber });
       const storedOtp = await VerifyUser.findOne({ phone: phoneNumber });
-      console.log(storedOtp.code)
-      if (!storedOtp) {
-        res.status(404).json({ success: false, message: "OTP not found for the given phone number." });
-        return;
+
+      // console.log(storedOtp)
+      if (!user && !storedOtp) {
+        return res.status(404).json({ success: false, message: "User not found with this phone number." });
       }
 
+      // Check if the OTP exists for the given phone number
+      // if (!storedOtp) {
+      //   return res.status(404).json({ success: false, message: "OTP not found for the given phone number." });
+      // }
+
+
       // Check if the OTP matches
-      if (storedOtp.code !== code) {
+      if (storedOtp.code !== code && user.code !== code) {
         res.status(400).json({ success: false, message: "Invalid OTP." });
         return;
       }
@@ -76,7 +83,7 @@ const authControllers = {
 
   createUser: async (req, res) => {
     const { name, phoneNumber, password } = req.body;
-
+console.log(req.body)
     try {
       // Check if user already exists
       const existingUser = await User.findOne({ phoneNumber });
@@ -93,11 +100,13 @@ const authControllers = {
         name,
         phoneNumber,
         password: hashedPassword,
+        // role: req.body.role
       });
 
       const savedUser = await user.save();
       res.status(201).json({ message: "User created successfully", user: savedUser });
     } catch (error) {
+      console.log(error)
       res.status(500).json({ message: error.message });
     }
   },
@@ -162,7 +171,7 @@ const authControllers = {
       user.code = otp;
       await user.save();
 
-      await sendSms({ phoneNumber, otp })
+      await sendSms({ to:phoneNumber, otp })
       // Send the OTP via SMS using Termii
 
       res.status(200).json({

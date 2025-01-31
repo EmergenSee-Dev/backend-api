@@ -29,7 +29,7 @@ const emergenseesController = {
 
       // Upload image to Cloudinary
       const cloudFile = await uploadToCloudinary(image);  // This will now work with buffers
-      console.log(cloudFile);  // Log the uploaded file details
+      // console.log(cloudFile);  // Log the uploaded file details
 
 
       // Create a new history record

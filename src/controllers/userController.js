@@ -4,7 +4,7 @@ const userControllers = {
   getUsers: async (req, res) => {
     try {
       // Fetch all users
-      const users = await User.find(); // Adjust this query based on your ORM/DB structure
+      const users = await User.find().select('-password'); // Adjust this query based on your ORM/DB structure
 
       res.status(200).json({
         success: true,
@@ -23,7 +23,7 @@ const userControllers = {
       const { id } = req.params;
 
       // Fetch a single user by ID
-      const user = await User.findById(id); // Replace with your ORM's method to fetch by ID
+      const user = await User.findById(id).select('-password'); // Replace with your ORM's method to fetch by ID
 
       if (!user) {
         res.status(404).json({
