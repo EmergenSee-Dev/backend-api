@@ -23,7 +23,7 @@ const authControllers = {
         code
       })
 
-      await sendSms({ to:phoneNumber, code })
+      await sendSms({ to: phoneNumber, code })
 
       const savedUser = await user.save();
       res.status(201).json({ message: "User created successfully", user: savedUser });
@@ -83,7 +83,7 @@ const authControllers = {
 
   createUser: async (req, res) => {
     const { name, phoneNumber, password } = req.body;
-// console.log(req.body)
+    // console.log(req.body)
     try {
       // Check if user already exists
       const existingUser = await User.findOne({ phoneNumber });
@@ -171,7 +171,7 @@ const authControllers = {
       user.code = otp;
       await user.save();
 
-      await sendSms({ to:phoneNumber, otp })
+      await sendSms({ to: phoneNumber, otp })
       // Send the OTP via SMS using Termii
 
       res.status(200).json({
@@ -232,6 +232,33 @@ const authControllers = {
       });
     }
   },
+  resendOtp: async (req, res) => {
+    const { phoneNumber } = req.body;
+    try {
+      // Handle missing phone number
+      if (!phoneNumber) {
+        return res.status(400).json({ message: "Phone number is required" });
+      }
+      const existingVerification = await VerifyUser.findOne({ phone: phoneNumber });
+      if (!existingVerification) {
+        return res.status(404).json({ message: "Verification not found. Please request a new verification." });
+      }
+      const code = generateVerificationCode();
+      existingVerification.code = code;
+      await existingVerification.save();
+
+      await sendSms({ to: phoneNumber, code });
+
+      res.status(200).json({ message: "OTP resent successfully" });
+
+    } catch (error) {
+      console.error("Error in resendOtp:", error);
+      res.status(500).json({
+        success: false,
+        message: "An error occurred while resendOtp your otp.",
+      });
+    }
+  }
 }
 
 module.exports = authControllers
