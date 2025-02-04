@@ -94,7 +94,7 @@ const emergenseesController = {
   getAll: async (req, res) => {
     try {
       // Fetch all history records from the database
-      const histories = await Emergensees.find();
+      const histories = await Emergensees.find().populate({ path: 'author', select: "name _id" }).lean()
 
       if (!histories || histories.length === 0) {
         res.status(404).json({
@@ -131,7 +131,7 @@ const emergenseesController = {
       }
 
       // Fetch a single history record by ID
-      const history = await Emergensees.findById(id);
+      const history = await Emergensees.findById(id).populate({ path: 'author', select: "name _id" }).lean()
 
       if (!history) {
         res.status(404).json({
@@ -168,7 +168,7 @@ const emergenseesController = {
       }
 
       // Fetch history data by author
-      const history = await Emergensees.find({ author });
+      const history = await Emergensees.find({ author }).populate({ path: 'author', select: "name _id" }).lean()
 
       if (!history || history.length === 0) {
         res.status(404).json({

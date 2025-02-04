@@ -83,7 +83,7 @@ const authControllers = {
 
   createUser: async (req, res) => {
     const { name, phoneNumber, password } = req.body;
-console.log(req.body)
+// console.log(req.body)
     try {
       // Check if user already exists
       const existingUser = await User.findOne({ phoneNumber });
