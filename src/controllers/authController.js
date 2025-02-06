@@ -12,7 +12,7 @@ const authControllers = {
     const { phoneNumber } = req.body;
 
     try {
-      const existingUser = await User.findOne({ phoneNumber });
+      const existingUser = await User.VerifyUser({ phoneNumber });
       if (existingUser) {
         return res.status(400).json({ message: "User already exists" });
       }
@@ -39,47 +39,39 @@ const authControllers = {
 
       // Validate request body
       if (!phoneNumber || !code) {
-        res.status(400).json({ success: false, message: "Phone Number and OTP are required." });
-        return;
+        return res.status(400).json({ success: false, message: "Phone Number and OTP are required." });
       }
 
-      // Check if the OTP exists for the given email
+      // Fetch both user and OTP verification data
       const user = await User.findOne({ phoneNumber });
       const storedOtp = await VerifyUser.findOne({ phone: phoneNumber });
 
-      // console.log(storedOtp)
+      // Check if at least one data source is available
       if (!user && !storedOtp) {
-        return res.status(404).json({ success: false, message: "User not found with this phone number." });
+        return res.status(404).json({ success: false, message: "No user or verification data found for this phone number." });
       }
 
-      // Check if the OTP exists for the given phone number
-      // if (!storedOtp) {
-      //   return res.status(404).json({ success: false, message: "OTP not found for the given phone number." });
-      // }
-
-
-      // Check if the OTP matches
-      if (storedOtp.code !== code && user.code !== code) {
-        res.status(400).json({ success: false, message: "Invalid OTP." });
-        return;
+      // Check if either source has a matching OTP
+      let otpValid = false;
+      if (storedOtp && storedOtp.code === code) {
+        otpValid = true;
+      } else if (user && user.code === code) {
+        otpValid = true;
       }
 
-      // Check if the OTP is expired
-      // if (new Date() > storedOtp.expiry) {
-      //   res.status(400).json({ success: false, message: "OTP has expired." });
-      //   return;
-      // }
+      if (!otpValid) {
+        return res.status(400).json({ success: false, message: "Invalid OTP." });
+      }
 
       // OTP is valid
-      res.status(200).json({ success: true, message: "OTP verified successfully." });
+      return res.status(200).json({ success: true, message: "OTP verified successfully." });
 
-      // Optionally, remove the OTP after verification
-      // otpStore.delete(email);
     } catch (error) {
       console.error("Error verifying OTP:", error);
-      res.status(500).json({ success: false, message: "An error occurred while verifying the OTP." });
+      return res.status(500).json({ success: false, message: "An error occurred while verifying the OTP." });
     }
   },
+
 
   createUser: async (req, res) => {
     const { name, phoneNumber, password } = req.body;
