@@ -29,9 +29,12 @@ app.use((req, res, next) => {
 const authRouter = require("./src/routes/authRouter");
 const userRouter = require("./src/routes/userRouter");
 const emergenseesRouter = require("./src/routes/emergenseesRouter");
+const blogRouter = require("./src/routes/blogRouter");
 
 app.use("/auth", authRouter);
 app.use("/api", userRouter);
+app.use("/api/blogs", blogRouter);
+
 app.use("/api/emergensee", emergenseesRouter);
 
 

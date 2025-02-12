@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const EmergenseesSchema = new mongoose.Schema({
   image: { type: String, required: true },
   name: { type: String, required: true },
+  description: { type: String, required: true },
   number_of_injured: { type: Number, required: true },
   address: { type: String, required: true },
   landmark: { type: String, required: true },

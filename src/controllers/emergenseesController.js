@@ -13,6 +13,7 @@ const emergenseesController = {
         weather_condition,
         time_of_incident,
         type,
+        description
       } = req.body;
       const image = req.file;
 
@@ -20,7 +21,7 @@ const emergenseesController = {
       const numInjured = Number(number_of_injured);
 
       // Validate required fields
-      if (!author || !name || !number_of_injured || !address || !landmark || !weather_condition || !time_of_incident || !type || !image) {
+      if (!author || !name || !number_of_injured || !address || !landmark || !weather_condition || !time_of_incident || !type || !image || !description) {
         return res.status(400).json({
           success: false,
           message: "All fields are required.",
@@ -43,6 +44,7 @@ const emergenseesController = {
         weather_condition,
         time_of_incident,
         type,
+        description
       });
 
       // Add additional fields based on type
@@ -90,18 +92,24 @@ const emergenseesController = {
     }
   },
 
-
   getAll: async (req, res) => {
     try {
-      // Fetch all history records from the database
-      const histories = await Emergensees.find().populate({ path: 'author', select: "name _id" }).lean()
+      // Build a query object; if a type filter is provided, add it to the query.
+      const query = {};
+      if (req.query.type) {
+        query.type = req.query.type;
+      }
+
+      // Fetch histories with the applied filter (if any)
+      const histories = await Emergensees.find(query)
+        .populate({ path: 'author', select: "name _id" })
+        .lean();
 
       if (!histories || histories.length === 0) {
-        res.status(404).json({
+        return res.status(404).json({
           success: false,
           message: "No Emergensees found.",
         });
-        return;
       }
 
       res.status(200).json({
