@@ -1,5 +1,6 @@
 const Emergensees = require("../models/Emergensees");
 const { uploadToCloudinary } = require("../utils/cloudinary");
+const { Parser } = require("json2csv");
 
 const emergenseesController = {
   createNew: async (req, res) => {
@@ -199,6 +200,85 @@ const emergenseesController = {
       });
     }
 
-  }
+  },
+
+  downloadCSV: async (req, res) => {
+    try {
+      const histories = await Emergensees.find()
+        .populate({ path: "author", select: "name _id" })
+        .lean();
+
+      if (!histories || histories.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "No Emergensees found.",
+        });
+      }
+
+      // Define CSV fields
+      const fields = [
+        { label: "ID", value: "_id" },
+        { label: "Author", value: "author.name" },
+        { label: "Name", value: "name" },
+        { label: "Number of Injured", value: "number_of_injured" },
+        { label: "Address", value: "address" },
+        { label: "Landmark", value: "landmark" },
+        { label: "Weather Condition", value: "weather_condition" },
+        { label: "Time of Incident", value: "time_of_incident" },
+        { label: "Type", value: "type" },
+        { label: "Description", value: "description" },
+        { label: "Image URL", value: "image" },
+      ];
+
+      const parser = new Parser({ fields });
+      const csv = parser.parse(histories);
+
+      // Send CSV file as a response
+      res.setHeader("Content-Type", "text/csv");
+      res.setHeader("Content-Disposition", "attachment; filename=emergensees.csv");
+      res.status(200).send(csv);
+    } catch (error) {
+      console.error("Error generating CSV:", error);
+      res.status(500).json({
+        success: false,
+        message: "An error occurred while generating CSV.",
+      });
+    }
+  },
+
+  deleteSingle: async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      if (!id) {
+        return res.status(400).json({
+          success: false,
+          message: "Emergensee ID is required.",
+        });
+      }
+
+      // Find and delete the record
+      const deletedRecord = await Emergensees.findByIdAndDelete(id);
+
+      if (!deletedRecord) {
+        return res.status(404).json({
+          success: false,
+          message: "Emergensee not found.",
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        message: "Emergensee deleted successfully.",
+        data: deletedRecord,
+      });
+    } catch (error) {
+      console.error("Error deleting Emergensee:", error);
+      res.status(500).json({
+        success: false,
+        message: "An error occurred while deleting Emergensee.",
+      });
+    }
+  },
 }
 module.exports = emergenseesController

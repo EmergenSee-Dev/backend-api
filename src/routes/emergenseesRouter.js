@@ -8,5 +8,7 @@ emergenseesRouter.post("/create", upload.single('image'), emergenseesController.
 emergenseesRouter.get('/all', emergenseesController.getAll)
 emergenseesRouter.get('/single/:id', emergenseesController.getSingle)
 emergenseesRouter.get('/user/:author', emergenseesController.getHistory)
+emergenseesRouter.get("/download", emergenseesController.downloadCSV);
+emergenseesRouter.delete("/:id", emergenseesController.deleteSingle);
 
 module.exports = emergenseesRouter;
