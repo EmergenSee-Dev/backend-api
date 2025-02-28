@@ -9,6 +9,7 @@ const EmergenseesSchema = new mongoose.Schema({
   landmark: { type: String, required: true },
   weather_condition: { type: String, required: true },
   time_of_incident: { type: String, required: true },
+  date_of_incident: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
   type: { type: String, required: true },
 
