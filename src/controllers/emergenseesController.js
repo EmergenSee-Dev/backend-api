@@ -231,6 +231,8 @@ const emergenseesController = {
         { label: "Time of Incident", value: "time_of_incident" },
         { label: "Type", value: "type" },
         { label: "Description", value: "description" },
+        { label: "Longitude", value: "lng" },
+        { label: "Latitude", value: "lat" },
         { label: "Image URL", value: "image" },
       ];
 

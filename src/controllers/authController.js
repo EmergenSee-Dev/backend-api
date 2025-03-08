@@ -97,6 +97,8 @@ const authControllers = {
       });
 
       const savedUser = await user.save();
+      await VerifyUser.deleteOne({ phone: phoneNumber });
+
       res.status(201).json({ message: "User created successfully", user: savedUser });
     } catch (error) {
       console.log(error)
