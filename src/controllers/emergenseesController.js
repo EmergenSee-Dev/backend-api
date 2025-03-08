@@ -15,7 +15,8 @@ const emergenseesController = {
         time_of_incident,
         date_of_incident,
         type,
-        description
+        description,
+        lat, lng
       } = req.body;
       const image = req.file;
 
@@ -47,7 +48,8 @@ const emergenseesController = {
         time_of_incident,
         date_of_incident,
         type,
-        description
+        description,
+        lat, lng
       });
 
       // Add additional fields based on type

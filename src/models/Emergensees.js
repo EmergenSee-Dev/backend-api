@@ -12,7 +12,8 @@ const EmergenseesSchema = new mongoose.Schema({
   date_of_incident: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
   type: { type: String, required: true },
-
+  lat: { type: Number, required: true },
+  lng: { type: Number, required: true },
   height: { type: String, required: false },
   from_unto: { type: String, required: false },
   surface: { type: String, required: false },
