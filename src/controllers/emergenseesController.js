@@ -24,7 +24,7 @@ const emergenseesController = {
       const numInjured = Number(number_of_injured);
 
       // Validate required fields
-      if (!author || !name || !number_of_injured || !date_of_incident || !address || !landmark || !weather_condition || !time_of_incident || !type || !image || !description) {
+      if (!author || !name || !number_of_injured || !date_of_incident || !address || !landmark || !weather_condition || !time_of_incident || !type || !image || !description || !lng || !lat) {
         return res.status(400).json({
           success: false,
           message: "All fields are required.",
