@@ -14,7 +14,7 @@ export const sendSms = async ({ to, code }) => {
       sms: `Hello there, this is your OTP code from Emergensee ${code}`,
       api_key: apiKey,
       from: "Emergensee",
-      channel: "generic",
+      channel: "dnd",
       type: "plain"
     };
 
