@@ -3,9 +3,7 @@ const User = require("../models/User");
 const userControllers = {
   getUsers: async (req, res) => {
     try {
-      // Fetch all users
-      const users = await User.find().select('-password'); // Adjust this query based on your ORM/DB structure
-
+      const users = await User.find().select('-password');
       res.status(200).json({
         success: true,
         data: users,
@@ -18,19 +16,17 @@ const userControllers = {
       });
     }
   },
+
   getSingleUser: async (req, res) => {
     try {
       const { id } = req.params;
-
-      // Fetch a single user by ID
-      const user = await User.findById(id).select('-password'); // Replace with your ORM's method to fetch by ID
+      const user = await User.findById(id).select('-password');
 
       if (!user) {
-        res.status(404).json({
+        return res.status(404).json({
           success: false,
           message: "User not found.",
         });
-        return;
       }
 
       res.status(200).json({
@@ -39,13 +35,35 @@ const userControllers = {
       });
     } catch (error) {
       console.error("Error fetching user:", error);
-
       res.status(500).json({
         success: false,
         message: "An error occurred while fetching the user.",
       });
     }
-  }
-}
+  },
 
-module.exports = userControllers
+  deleteUser: async (req, res) => {
+    try {
+      const user = await User.findByIdAndDelete(req.params.id);
+      if (!user) {
+        return res.status(404).json({ 
+          success: false,
+          message: 'User not found.' 
+        });
+      }
+      res.status(200).json({ 
+        success: true,
+        message: 'User deleted successfully.', 
+        data: user 
+      });
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      res.status(500).json({ 
+        success: false,
+        message: 'An error occurred while deleting the user.' 
+      });
+    }
+  }
+};
+
+module.exports = userControllers;
