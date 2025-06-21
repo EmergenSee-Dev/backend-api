@@ -14,6 +14,7 @@ const EmergenseesSchema = new mongoose.Schema({
   type: { type: String, required: true },
   lat: { type: Number, required: true },
   lng: { type: Number, required: true },
+  
   height: { type: String, required: false },
   from_unto: { type: String, required: false },
   surface: { type: String, required: false },
