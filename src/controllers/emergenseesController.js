@@ -222,6 +222,7 @@ const emergenseesController = {
       // Define CSV fields
       const fields = [
         { label: "ID", value: "_id" },
+        { label: "createdAt", value: "createdAt" },
         { label: "Author", value: "author.name" },
         { label: "Name", value: "name" },
         { label: "Number of Injured", value: "number_of_injured" },
